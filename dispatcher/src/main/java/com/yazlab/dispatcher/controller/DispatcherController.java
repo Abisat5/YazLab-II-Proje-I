@@ -17,8 +17,15 @@ public class DispatcherController {
 
     @GetMapping("/users")
     public ResponseEntity<String> getUsers() {
-        // Gelen isteği al, 8082 portunda çalışan User Service'e gönder ve cevabı dön!
         String userServiceUrl = "http://localhost:8082/users";
-        return restTemplate.getForEntity(userServiceUrl, String.class);
+
+        // 1. İsteği at ve cevabı al
+        ResponseEntity<String> response = restTemplate.getForEntity(userServiceUrl, String.class);
+
+        // 2. Arkadan gelen sorunlu başlıkları (Transfer-Encoding vb.) atıp,
+        // sadece Body ve Status kodunu içeren temiz bir yanıt dönüyoruz.
+        return ResponseEntity.status(response.getStatusCode())
+                .header("Content-Type", "application/json")
+                .body(response.getBody());
     }
 }
