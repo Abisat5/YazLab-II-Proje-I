@@ -37,9 +37,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void sendErrorResponse(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK); // 200 dön
-        response.setContentType("application/json");
-        response.getWriter().write("{\"error\": true}");
+        // 200 OK yerine 401 Unauthorized dönüyoruz
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\": \"Yetkisiz erişim: Geçersiz veya eksik token\"}");
         response.getWriter().flush();
     }
 }
