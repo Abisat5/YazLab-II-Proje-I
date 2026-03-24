@@ -1,24 +1,13 @@
 version: '3.8'
 
 services:
-  # Auth Service için
-  auth-db:
+  mongo:
     image: mongo:latest
-    container_name: auth-db
+    container_name: yazlab-mongo
     ports:
-      - "27018:27017"
+      - "27017:27017"
     volumes:
-      - auth_mongo_data:/data/db
-
-  # User Service için
-  user-db:
-    image: mongo:latest
-    container_name: user-db
-    ports:
-      - "27019:27017"
-    volumes:
-      - user_mongo_data:/data/db
+      - yazlab_mongo_data:/data/db
 
 volumes:
-  auth_mongo_data:
-  user_mongo_data:
+  yazlab_mongo_data:
