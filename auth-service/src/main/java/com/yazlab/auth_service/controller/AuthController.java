@@ -1,10 +1,12 @@
 package com.yazlab.auth_service.controller;
-import java.util.Map;
+
+import com.yazlab.auth_service.dto.LoginRequest;
 import com.yazlab.auth_service.dto.RegisterRequest;
 import com.yazlab.auth_service.model.User;
 import com.yazlab.auth_service.service.AuthService;
 import org.springframework.web.bind.annotation.*;
-import com.yazlab.auth_service.dto.LoginRequest;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,14 +23,14 @@ public class AuthController {
         return authService.register(request);
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "Auth service calisiyorr";
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody LoginRequest request) {
+        String token = authService.login(request);
+        return Map.of("token", token);
     }
 
-@PostMapping("/login")
-public Map<String, String> login(@RequestBody LoginRequest request) {
-    String token = authService.login(request);
-    return Map.of("token", token);
-}
+    @GetMapping("/test")
+    public String test() {
+        return "Auth service calisiyor";
+    }
 }

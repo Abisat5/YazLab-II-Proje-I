@@ -2,29 +2,48 @@ package com.yazlab.auth_service.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final String SECRET = "mysecretkeymysecretkeymysecretkey"; 
+    private final long EXPIRATION = 1000 * 60 * 60; 
 
-    public static String generateToken(String username) {
+    private Key getSignKey() {
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
+
+    public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 saat
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public static String validateToken(String token) {
+    public String extractUsername(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

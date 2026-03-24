@@ -17,7 +17,10 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers() {
+    public List<User> getUsers(@RequestHeader("X-User") String username) {
+
+        System.out.println("Gelen kullanıcı: " + username);
+
         return userService.getAllUsers();
     }
 }
