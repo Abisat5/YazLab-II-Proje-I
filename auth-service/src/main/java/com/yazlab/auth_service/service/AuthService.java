@@ -37,7 +37,12 @@ public class AuthService {
             throw new RuntimeException("Wrong password");
         }
 
-        
-        return jwtUtil.generateToken(user.getUsername());
+        String role = "USER";
+
+        if (user.getUsername().equals("admin")) {
+            role = "ADMIN";
+        }
+
+        return jwtUtil.generateToken(user.getUsername(), role);
     }
 }

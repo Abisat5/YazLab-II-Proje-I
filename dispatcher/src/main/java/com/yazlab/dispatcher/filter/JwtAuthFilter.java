@@ -3,8 +3,7 @@ package com.yazlab.dispatcher.filter;
 import com.yazlab.dispatcher.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,13 +35,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        
         String username = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractRole(token);
 
-        
         request.setAttribute("username", username);
+        request.setAttribute("role", role);
 
-        filterChain.doFilter(request, response);
+        HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request) {
+            @Override
+            public String getHeader(String name) {
+                if ("X-User".equals(name)) return username;
+                if ("X-Role".equals(name)) return role;
+                return super.getHeader(name);
+            }
+        };
+
+        filterChain.doFilter(wrappedRequest, response);
     }
 
     private void sendError(HttpServletResponse response) throws IOException {
