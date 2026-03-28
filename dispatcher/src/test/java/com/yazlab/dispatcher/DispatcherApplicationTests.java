@@ -19,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -58,6 +57,7 @@ class DispatcherApplicationTests {
 
         String expectedResponse = "[{\"username\":\"gercek_kullanici\"}]";
 
+        // JWT mock
         Mockito.when(jwtUtil.validateToken(anyString())).thenReturn(true);
         Mockito.when(jwtUtil.extractUsername(anyString())).thenReturn("admin");
         Mockito.when(jwtUtil.extractRole(anyString())).thenReturn("ADMIN");
