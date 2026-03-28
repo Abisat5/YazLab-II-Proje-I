@@ -2,26 +2,25 @@ package com.yazlab.dispatcher.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazlab.dispatcher.config.ServiceUrlProperties;
-import com.yazlab.dispatcher.http.HttpForwardClient;
+import com.yazlab.dispatcher.http.GatewayHttpClient;
 import com.yazlab.dispatcher.http.ProxyBodyNormalizer;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
 @RestController
 public class ConversationProxyController {
 
-    private final RestTemplate restTemplate;
+    private final GatewayHttpClient gatewayHttpClient;
     private final ServiceUrlProperties serviceUrls;
     private final ObjectMapper objectMapper;
 
-    public ConversationProxyController(RestTemplate restTemplate,
+    public ConversationProxyController(GatewayHttpClient gatewayHttpClient,
                                        ServiceUrlProperties serviceUrls,
                                        ObjectMapper objectMapper) {
-        this.restTemplate = restTemplate;
+        this.gatewayHttpClient = gatewayHttpClient;
         this.serviceUrls = serviceUrls;
         this.objectMapper = objectMapper;
     }
@@ -33,7 +32,7 @@ public class ConversationProxyController {
             String xUser = request.getAttribute("username") != null
                     ? request.getAttribute("username").toString()
                     : null;
-            ResponseEntity<String> r = HttpForwardClient.postJson(
+            ResponseEntity<String> r = gatewayHttpClient.postJson(
                     serviceUrls.getMessage() + "/conversations", json, xUser);
             return withJsonContentType(r);
         } catch (IllegalArgumentException e) {
@@ -57,7 +56,7 @@ public class ConversationProxyController {
                     ? request.getAttribute("username").toString()
                     : null;
             String url = serviceUrls.getMessage() + "/conversations/" + conversationId + "/messages";
-            ResponseEntity<String> r = HttpForwardClient.postJson(url, json, xUser);
+            ResponseEntity<String> r = gatewayHttpClient.postJson(url, json, xUser);
             return withJsonContentType(r);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("{\"error\":\"" + e.getMessage() + "\"}");
@@ -73,6 +72,17 @@ public class ConversationProxyController {
         return forwardGet(request, url);
     }
 
+    @DeleteMapping("/conversations/{conversationId}")
+    public ResponseEntity<String> deleteConversation(HttpServletRequest request,
+                                                       @PathVariable String conversationId) {
+        String xUser = request.getAttribute("username") != null
+                ? request.getAttribute("username").toString()
+                : null;
+        String url = serviceUrls.getMessage() + "/conversations/" + conversationId;
+        ResponseEntity<String> r = gatewayHttpClient.delete(url, xUser);
+        return withJsonContentType(r);
+    }
+
     private static ResponseEntity<String> withJsonContentType(ResponseEntity<String> r) {
         return ResponseEntity.status(r.getStatusCode())
                 .header("Content-Type", "application/json")
@@ -80,13 +90,9 @@ public class ConversationProxyController {
     }
 
     private ResponseEntity<String> forwardGet(HttpServletRequest request, String url) {
-        HttpHeaders headers = new HttpHeaders();
         Object user = request.getAttribute("username");
-        if (user != null) {
-            headers.set("X-User", user.toString());
-        }
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        String xUser = user != null ? user.toString() : null;
+        ResponseEntity<String> response = gatewayHttpClient.get(url, xUser);
         return ResponseEntity.status(response.getStatusCode())
                 .header("Content-Type", "application/json")
                 .body(response.getBody());

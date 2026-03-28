@@ -1,5 +1,6 @@
 package com.yazlab.dispatcher.config;
 
+import com.yazlab.dispatcher.filter.AccessAuthorizationFilter;
 import com.yazlab.dispatcher.filter.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,15 +8,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final AccessAuthorizationFilter accessAuthorizationFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
+                          AccessAuthorizationFilter accessAuthorizationFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.accessAuthorizationFilter = accessAuthorizationFilter;
     }
 
     @Bean
@@ -27,16 +30,9 @@ public class SecurityConfig {
                 .anyRequest().permitAll() // tüm requestlere izin
             );
 
-        // JWT filtresini ekle
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(accessAuthorizationFilter, JwtAuthFilter.class);
 
         return http.build();
-    }
-    // import org.springframework.web.client.RestTemplate;
-    // import org.springframework.context.annotation.Bean;
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }

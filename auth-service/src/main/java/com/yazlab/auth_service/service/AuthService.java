@@ -3,6 +3,7 @@ package com.yazlab.auth_service.service;
 import com.yazlab.auth_service.dto.LoginRequest;
 import com.yazlab.auth_service.dto.RegisterRequest;
 import com.yazlab.auth_service.model.User;
+import com.yazlab.auth_service.client.UserDirectoryClient;
 import com.yazlab.auth_service.repository.UserRepository;
 import com.yazlab.auth_service.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,10 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil; 
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserDirectoryClient userDirectoryClient;
 
     public User register(RegisterRequest request) {
 
@@ -24,7 +28,9 @@ public class AuthService {
                 request.getPassword()
         );
 
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        userDirectoryClient.notifyUserCreated(saved.getUsername());
+        return saved;
     }
 
     public String login(LoginRequest request) {
