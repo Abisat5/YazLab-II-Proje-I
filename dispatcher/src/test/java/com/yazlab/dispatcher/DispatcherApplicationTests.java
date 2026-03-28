@@ -56,7 +56,7 @@ class DispatcherApplicationTests {
 
         // User-service mock
         Mockito.when(restTemplate.exchange(
-                        eq("http://localhost:8082/users"),
+                        eq("http://user-service:8082/users"),
                         eq(HttpMethod.GET),
                         any(HttpEntity.class),
                         eq(String.class)))
@@ -91,7 +91,7 @@ class DispatcherApplicationTests {
         Mockito.when(jwtUtil.extractRole(anyString())).thenReturn("USER");
 
         Mockito.when(restTemplate.exchange(
-                        eq("http://localhost:8082/users/me"),
+                        eq("http://user-service:8082/users/me"),
                         eq(HttpMethod.GET),
                         any(HttpEntity.class),
                         eq(String.class)))

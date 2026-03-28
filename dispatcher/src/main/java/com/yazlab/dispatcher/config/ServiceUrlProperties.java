@@ -8,9 +8,9 @@ public class ServiceUrlProperties {
     /**
      * user-service taban URL (ornek: http://user-service:8082)
      */
-    private String user = "http://localhost:8082";
-    private String message = "http://localhost:8083";
-    private String auth = "http://localhost:8081";
+    private String user = "http://user-service:8082";
+    private String message = "http://message-service:8083";
+    private String auth = "http://auth-service:8081";
 
     public String getUser() {
         return user;

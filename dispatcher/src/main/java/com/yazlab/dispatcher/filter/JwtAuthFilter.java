@@ -57,12 +57,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         };
 
         filterChain.doFilter(wrappedRequest, response);
+        System.out.println("Authenticated user: " + username + " | role: " + role);
     }
 
-    private void sendError(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"error\": \"Yetkisiz erişim\"}");
-        response.getWriter().flush();
-    }
+private void sendError(HttpServletResponse response) throws IOException {
+    System.out.println("[SECURITY] Unauthorized access attempt!");
+
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType("application/json;charset=UTF-8");
+    response.getWriter().write("{\"error\": \"Yetkisiz erişim\"}");
+    response.getWriter().flush();
+}
 }

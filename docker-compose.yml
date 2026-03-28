@@ -1,5 +1,9 @@
 services:
-  mongo-core:
+  mongo-auth:
+    image: mongo:7
+    networks: [yazlab-internal]
+
+  mongo-user:
     image: mongo:7
     networks: [yazlab-internal]
 
@@ -15,21 +19,27 @@ services:
     build: ./auth-service
     networks: [yazlab-internal]
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-core:27017/yazlab
-    depends_on: [mongo-core]
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-auth:27017/auth_db
+    expose:
+      - "8081"
+    depends_on: [mongo-auth]
 
   user-service:
     build: ./user-service
     networks: [yazlab-internal]
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-core:27017/yazlab
-    depends_on: [mongo-core]
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-user:27017/user_db
+    expose:
+      - "8082"
+    depends_on: [mongo-user]
 
   message-service:
     build: ./message-service
     networks: [yazlab-internal]
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-message:27017/yazlab_messages
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-message:27017/message_db
+    expose:
+      - "8083"
     depends_on: [mongo-message]
 
   dispatcher:
