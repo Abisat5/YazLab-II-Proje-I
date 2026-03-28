@@ -1,5 +1,6 @@
 package com.yazlab.user_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,6 +20,7 @@ public class User {
 
     public String getId() { return id; }
     public String getUsername() { return username; }
+    @JsonIgnore
     public String getPassword() { return password; }
     public void setId(String id) { this.id = id; }
     public void setUsername(String username) { this.username = username; }

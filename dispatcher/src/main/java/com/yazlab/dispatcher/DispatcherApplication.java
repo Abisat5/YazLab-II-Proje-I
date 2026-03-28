@@ -17,7 +17,7 @@ public class DispatcherApplication {
     public FilterRegistrationBean<JwtAuthFilter> jwtFilter(JwtAuthFilter filter) {
         FilterRegistrationBean<JwtAuthFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);
-        registrationBean.addUrlPatterns("/users/*", "/messages/*"); 
+        registrationBean.addUrlPatterns("/users", "/users/*", "/profile", "/messages/*");
         return registrationBean;
     }
 }
