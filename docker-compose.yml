@@ -1,13 +1,53 @@
-version: '3.8'
-
 services:
-  mongo:
-    image: mongo:latest
-    container_name: yazlab-mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - yazlab_mongo_data:/data/db
+  mongo-core:
+    image: mongo:7
+    networks: [yazlab-internal]
 
-volumes:
-  yazlab_mongo_data:
+  mongo-message:
+    image: mongo:7
+    networks: [yazlab-internal]
+
+  mongo-dispatcher:
+    image: mongo:7
+    networks: [yazlab-internal]
+
+  auth-service:
+    build: ./auth-service
+    networks: [yazlab-internal]
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-core:27017/yazlab
+    depends_on: [mongo-core]
+
+  user-service:
+    build: ./user-service
+    networks: [yazlab-internal]
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-core:27017/yazlab
+    depends_on: [mongo-core]
+
+  message-service:
+    build: ./message-service
+    networks: [yazlab-internal]
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-message:27017/yazlab_messages
+    depends_on: [mongo-message]
+
+  dispatcher:
+    build: ./dispatcher
+    ports:
+      - "8080:8080"
+    networks: [yazlab-internal]
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-dispatcher:27017/yazlab_dispatcher
+      YAZLAB_SERVICES_AUTH: http://auth-service:8081
+      YAZLAB_SERVICES_USER: http://user-service:8082
+      YAZLAB_SERVICES_MESSAGE: http://message-service:8083
+    depends_on:
+      - mongo-dispatcher
+      - auth-service
+      - user-service
+      - message-service
+
+networks:
+  yazlab-internal:
+    driver: bridge

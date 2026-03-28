@@ -1,12 +1,15 @@
 package com.yazlab.dispatcher;
 
+import com.yazlab.dispatcher.config.ServiceUrlProperties;
 import com.yazlab.dispatcher.filter.JwtAuthFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@EnableConfigurationProperties(ServiceUrlProperties.class)
 public class DispatcherApplication {
 
     public static void main(String[] args) {
@@ -17,7 +20,10 @@ public class DispatcherApplication {
     public FilterRegistrationBean<JwtAuthFilter> jwtFilter(JwtAuthFilter filter) {
         FilterRegistrationBean<JwtAuthFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(filter);
-        registrationBean.addUrlPatterns("/users", "/users/*", "/profile", "/messages/*");
+        registrationBean.addUrlPatterns(
+                "/users", "/users/*", "/profile",
+                "/conversations", "/conversations/*",
+                "/messages/*");
         return registrationBean;
     }
 }

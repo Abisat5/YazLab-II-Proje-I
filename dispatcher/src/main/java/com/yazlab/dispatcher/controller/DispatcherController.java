@@ -1,5 +1,6 @@
 package com.yazlab.dispatcher.controller;
 
+import com.yazlab.dispatcher.config.ServiceUrlProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -9,9 +10,11 @@ import org.springframework.web.client.RestTemplate;
 public class DispatcherController {
 
     private final RestTemplate restTemplate;
+    private final ServiceUrlProperties serviceUrls;
 
-    public DispatcherController(RestTemplate restTemplate) {
+    public DispatcherController(RestTemplate restTemplate, ServiceUrlProperties serviceUrls) {
         this.restTemplate = restTemplate;
+        this.serviceUrls = serviceUrls;
     }
 
     @GetMapping("/users")
@@ -29,7 +32,7 @@ public class DispatcherController {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "http://localhost:8082/users",
+                serviceUrls.getUser() + "/users",
                 HttpMethod.GET,
                 entity,
                 String.class
@@ -49,7 +52,7 @@ public class DispatcherController {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "http://localhost:8082/users/me",
+                serviceUrls.getUser() + "/users/me",
                 HttpMethod.GET,
                 entity,
                 String.class
