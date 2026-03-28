@@ -7,21 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,26 +46,44 @@ class DispatcherApplicationTests {
 
     @Test
     void usersEndpoint_ShouldRouteToUserService() throws Exception {
-        String expectedResponseFromUserService = "[{\"username\":\"gercek_kullanici\"}]";
 
+        String expectedResponse = "[{\"username\":\"gercek_kullanici\"}]";
+
+        // JWT mock
         Mockito.when(jwtUtil.validateToken(anyString())).thenReturn(true);
         Mockito.when(jwtUtil.extractUsername(anyString())).thenReturn("admin");
         Mockito.when(jwtUtil.extractRole(anyString())).thenReturn("ADMIN");
 
+        // User-service mock
         Mockito.when(restTemplate.exchange(
                         eq("http://localhost:8082/users"),
                         eq(HttpMethod.GET),
                         any(HttpEntity.class),
                         eq(String.class)))
-                .thenReturn(new ResponseEntity<>(expectedResponseFromUserService, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
 
-        mockMvc.perform(get("/users").header("Authorization", "Bearer valid.jwt.stub"))
+        mockMvc.perform(get("/users")
+                        .header("Authorization", "Bearer valid.jwt.stub"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(expectedResponseFromUserService));
+                .andExpect(content().string(expectedResponse));
+    }
+
+    @Test
+    void usersEndpoint_ShouldReturn403_ForNonAdmin() throws Exception {
+
+        Mockito.when(jwtUtil.validateToken(anyString())).thenReturn(true);
+        Mockito.when(jwtUtil.extractUsername(anyString())).thenReturn("user");
+        Mockito.when(jwtUtil.extractRole(anyString())).thenReturn("USER");
+
+        mockMvc.perform(get("/users")
+                        .header("Authorization", "Bearer valid.jwt.stub"))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("{\"error\":\"Bu işlem için yetkiniz yok\"}"));
     }
 
     @Test
     void profileEndpoint_ShouldRouteToUserServiceMe() throws Exception {
+
         String body = "{\"id\":\"1\",\"username\":\"alice\"}";
 
         Mockito.when(jwtUtil.validateToken(anyString())).thenReturn(true);
@@ -85,7 +97,8 @@ class DispatcherApplicationTests {
                         eq(String.class)))
                 .thenReturn(new ResponseEntity<>(body, HttpStatus.OK));
 
-        mockMvc.perform(get("/profile").header("Authorization", "Bearer valid.jwt.stub"))
+        mockMvc.perform(get("/profile")
+                        .header("Authorization", "Bearer valid.jwt.stub"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(body));
     }
