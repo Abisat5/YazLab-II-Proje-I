@@ -70,4 +70,10 @@ public class ConversationService {
         requireParticipant(conversationId, viewer);
         return chatMessageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
     }
+
+    public void deleteConversation(String conversationId, String username) {
+        requireParticipant(conversationId, username);
+        chatMessageRepository.deleteByConversationId(conversationId);
+        conversationRepository.deleteById(conversationId);
+    }
 }

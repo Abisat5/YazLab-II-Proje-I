@@ -46,4 +46,11 @@ public class ConversationController {
                                         @PathVariable String conversationId) {
         return conversationService.listMessages(conversationId, username);
     }
+
+    @DeleteMapping("/{conversationId}")
+    public ResponseEntity<Void> delete(@RequestHeader("X-User") String username,
+                                       @PathVariable String conversationId) {
+        conversationService.deleteConversation(conversationId, username);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,5 +1,9 @@
 services:
-  mongo-core:
+  mongo-auth:
+    image: mongo:7
+    networks: [yazlab-internal]
+
+  mongo-user:
     image: mongo:7
     networks: [yazlab-internal]
 
@@ -15,21 +19,25 @@ services:
     build: ./auth-service
     networks: [yazlab-internal]
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-core:27017/yazlab
-    depends_on: [mongo-core]
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-auth:27017/yazlab_auth
+      YAZLAB_INTERNAL_GATEWAY_TOKEN: ${YAZLAB_INTERNAL_GATEWAY_TOKEN:-yazlab-dev-gateway-token}
+      YAZLAB_USER_SERVICE_BASE_URL: http://user-service:8082
+    depends_on: [mongo-auth, user-service]
 
   user-service:
     build: ./user-service
     networks: [yazlab-internal]
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-core:27017/yazlab
-    depends_on: [mongo-core]
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-user:27017/yazlab_users
+      YAZLAB_INTERNAL_GATEWAY_TOKEN: ${YAZLAB_INTERNAL_GATEWAY_TOKEN:-yazlab-dev-gateway-token}
+    depends_on: [mongo-user]
 
   message-service:
     build: ./message-service
     networks: [yazlab-internal]
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo-message:27017/yazlab_messages
+      YAZLAB_INTERNAL_GATEWAY_TOKEN: ${YAZLAB_INTERNAL_GATEWAY_TOKEN:-yazlab-dev-gateway-token}
     depends_on: [mongo-message]
 
   dispatcher:
@@ -39,6 +47,7 @@ services:
     networks: [yazlab-internal]
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo-dispatcher:27017/yazlab_dispatcher
+      YAZLAB_INTERNAL_GATEWAY_TOKEN: ${YAZLAB_INTERNAL_GATEWAY_TOKEN:-yazlab-dev-gateway-token}
       YAZLAB_SERVICES_AUTH: http://auth-service:8081
       YAZLAB_SERVICES_USER: http://user-service:8082
       YAZLAB_SERVICES_MESSAGE: http://message-service:8083
@@ -47,6 +56,48 @@ services:
       - auth-service
       - user-service
       - message-service
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=24h
+    ports:
+      - "9090:9090"
+    networks: [yazlab-internal]
+    depends_on: [dispatcher]
+
+  loki:
+    image: grafana/loki:2.9.4
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks: [yazlab-internal]
+
+  promtail:
+    image: grafana/promtail:2.9.4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks: [yazlab-internal]
+    depends_on: [loki]
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_DEFAULT_THEME: dark
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+    networks: [yazlab-internal]
+    depends_on: [prometheus, loki]
 
 networks:
   yazlab-internal:

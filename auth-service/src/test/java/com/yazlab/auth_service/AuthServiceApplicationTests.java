@@ -1,4 +1,4 @@
-package com.yazlab.auth;
+package com.yazlab.auth_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
