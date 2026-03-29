@@ -35,6 +35,11 @@ public final class ProxyBodyNormalizer {
         return rawBytesToJsonObject(raw, mapper);
     }
 
+
+    public static byte[] toJsonFromBytes(byte[] raw, ObjectMapper mapper) throws IOException {
+        return rawBytesToJsonObject(raw, mapper);
+    }
+
     private static byte[] rawBytesToJsonObject(byte[] raw, ObjectMapper mapper) throws IOException {
         if (raw == null || raw.length == 0) {
             throw new IllegalArgumentException("Bos govde");

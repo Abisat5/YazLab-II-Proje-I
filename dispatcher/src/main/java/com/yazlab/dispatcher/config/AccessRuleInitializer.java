@@ -39,6 +39,7 @@ public class AccessRuleInitializer implements ApplicationRunner {
                 rule("USER", "POST", "/conversations/*/messages"),
                 rule("USER", "DELETE", "/conversations/*"),
                 rule("ADMIN", "GET", "/users"),
+                rule("ADMIN", "POST", "/users"),
                 rule("ADMIN", "GET", "/users/**"));
     }
 

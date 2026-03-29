@@ -26,7 +26,7 @@ public class InternalProfileController {
         if (username == null || username.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username gerekli");
         }
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepository.findFirstByUsername(username).isPresent()) {
             return;
         }
         userRepository.save(new User(username, ""));

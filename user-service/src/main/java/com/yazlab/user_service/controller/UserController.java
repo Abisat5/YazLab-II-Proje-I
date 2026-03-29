@@ -4,6 +4,8 @@ import com.yazlab.user_service.model.User;
 import com.yazlab.user_service.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,12 +40,11 @@ public class UserController {
 
         logger.info("GET /users/me çağrıldı | kullanıcı: {}", username);
 
-        return userService.getUserByUsername(username);
+        return userService.getOrCreateProfile(username);
     }
-    @PostMapping("/users")
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.save(user));
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User saved = userService.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
-
-    
 }

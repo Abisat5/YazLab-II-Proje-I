@@ -20,7 +20,22 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
+        return userRepository.findFirstByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    /**
+     * Ilk profil isteginde bos sifreli kayit olusturur.
+     */
+    public User getOrCreateProfile(String username) {
+        if (username == null || username.isBlank()) {
+            throw new RuntimeException("Kullanıcı bilgisi yok");
+        }
+        return userRepository.findFirstByUsername(username)
+                .orElseGet(() -> userRepository.save(new User(username, "")));
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
     }
 }

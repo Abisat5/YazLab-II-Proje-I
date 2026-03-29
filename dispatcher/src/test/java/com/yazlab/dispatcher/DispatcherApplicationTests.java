@@ -16,9 +16,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.http.MediaType;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -88,6 +92,30 @@ class DispatcherApplicationTests {
                         .header("Authorization", "Bearer valid.jwt.stub"))
                 .andExpect(status().isForbidden())
                 .andExpect(content().string("{\"error\":\"Bu kaynak icin yetkiniz yok\"}"));
+    }
+
+    @Test
+    void createUser_ShouldRouteToUserService_ForAdmin() throws Exception {
+
+        String requestJson = "{\"username\":\"newuser\",\"password\":\"secret\"}";
+        String responseJson = "{\"id\":\"1\",\"username\":\"newuser\"}";
+
+        Mockito.when(jwtUtil.validateToken(anyString())).thenReturn(true);
+        Mockito.when(jwtUtil.extractUsername(anyString())).thenReturn("admin");
+        Mockito.when(jwtUtil.extractRole(anyString())).thenReturn("ADMIN");
+
+        Mockito.when(accessAuthorizationService.canAccess(eq("ADMIN"), eq("POST"), eq("/users")))
+                .thenReturn(true);
+
+        Mockito.when(gatewayHttpClient.postJson(eq("http://user-service:8082/users"), any(), eq("admin")))
+                .thenReturn(new ResponseEntity<>(responseJson, HttpStatus.CREATED));
+
+        mockMvc.perform(post("/users")
+                        .header("Authorization", "Bearer valid.jwt.stub")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().string(responseJson));
     }
 
     @Test

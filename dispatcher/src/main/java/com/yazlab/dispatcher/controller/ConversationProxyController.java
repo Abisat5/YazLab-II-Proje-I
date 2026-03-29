@@ -26,9 +26,10 @@ public class ConversationProxyController {
     }
 
     @PostMapping("/conversations")
-    public ResponseEntity<String> createConversation(HttpServletRequest request) {
+    public ResponseEntity<String> createConversation(HttpServletRequest request,
+                                                     @RequestBody(required = false) byte[] body) {
         try {
-            byte[] json = ProxyBodyNormalizer.toJson(request, objectMapper);
+            byte[] json = ProxyBodyNormalizer.toJsonFromBytes(body, objectMapper);
             String xUser = request.getAttribute("username") != null
                     ? request.getAttribute("username").toString()
                     : null;
@@ -49,9 +50,10 @@ public class ConversationProxyController {
 
     @PostMapping("/conversations/{conversationId}/messages")
     public ResponseEntity<String> sendMessage(HttpServletRequest request,
-                                              @PathVariable String conversationId) {
+                                              @PathVariable String conversationId,
+                                              @RequestBody(required = false) byte[] body) {
         try {
-            byte[] json = ProxyBodyNormalizer.toJson(request, objectMapper);
+            byte[] json = ProxyBodyNormalizer.toJsonFromBytes(body, objectMapper);
             String xUser = request.getAttribute("username") != null
                     ? request.getAttribute("username").toString()
                     : null;
