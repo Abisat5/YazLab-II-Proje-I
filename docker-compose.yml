@@ -65,15 +65,15 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.55.1
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    container_name: prometheus
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.retention.time=24h
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    networks: [yazlab-internal]
-    depends_on: [dispatcher]
+    networks: [yazlab-internal] # Ağı diğerleriyle aynı yaptım
 
   loki:
     image: grafana/loki:2.9.4

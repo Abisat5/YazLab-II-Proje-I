@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -33,9 +34,8 @@ public class UserController {
     @GetMapping("/me")
     public User getMe(@RequestHeader(value = "X-User", required = false) String username) {
 
-        if (username == null) {
-            logger.error("X-User header yok!");
-            throw new RuntimeException("Kullanıcı bilgisi yok");
+        if (username == null || username.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "X-User header gerekli");
         }
 
         logger.info("GET /users/me çağrıldı | kullanıcı: {}", username);

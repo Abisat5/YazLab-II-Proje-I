@@ -4,6 +4,8 @@ import com.yazlab.auth_service.dto.LoginRequest;
 import com.yazlab.auth_service.dto.RegisterRequest;
 import com.yazlab.auth_service.model.User;
 import com.yazlab.auth_service.service.AuthService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,8 +21,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
+        User created = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PostMapping("/login")

@@ -2,7 +2,9 @@ package com.yazlab.user_service.service;
 
 import com.yazlab.user_service.model.User;
 import com.yazlab.user_service.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findFirstByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     /**
@@ -29,7 +31,7 @@ public class UserService {
      */
     public User getOrCreateProfile(String username) {
         if (username == null || username.isBlank()) {
-            throw new RuntimeException("Kullanıcı bilgisi yok");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kullanıcı bilgisi yok");
         }
         return userRepository.findFirstByUsername(username)
                 .orElseGet(() -> userRepository.save(new User(username, "")));
