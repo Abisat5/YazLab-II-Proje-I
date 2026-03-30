@@ -1,3 +1,5 @@
+package com.yazlab.dispatcher;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
