@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YazLab - Dispatcher UI</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <div class="title">YazLab Dispatcher UI</div>
+          <div class="subtitle">Frontend → Nginx → Dispatcher (/api)</div>
+        </div>
+      </div>
+      <div class="session">
+        <span id="sessionUser" class="muted">Giriş yapılmadı</span>
+        <button id="btnLogout" class="btn btn-ghost" type="button">Çıkış</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="banner" class="banner hidden"></div>
+      <div class="grid">
+        <section class="card">
+          <h2>Auth</h2>
+          <div class="row">
+            <div class="col">
+              <label>Kullanıcı adı</label>
+              <input id="authUsername" placeholder="örn: alice" />
+            </div>
+            <div class="col">
+              <label>Şifre</label>
+              <input id="authPassword" type="password" placeholder="••••••" />
+            </div>
+          </div>
+          <div class="row">
+            <button id="btnRegister" class="btn" type="button">Register</button>
+            <button id="btnLogin" class="btn btn-primary" type="button">Login</button>
+            <button id="btnFillAdmin" class="btn btn-ghost" type="button">Admin Doldur</button>
+            <button id="btnAuthTest" class="btn btn-ghost" type="button">Auth Test</button>
+          </div>
+          <div class="hint muted">
+            Token localStorage'da saklanır. İstekler <code>/api</code> üzerinden Dispatcher'a gider.
+            <br />
+            <strong>Admin olarak</strong> <code>admin</code> kullanıcı adıyla kayıt olup giriş yapabilirsin (rol: ADMIN).
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Profil</h2>
+          <div class="row">
+            <button id="btnProfile" class="btn btn-primary auth-required" type="button">GET /profile</button>
+          </div>
+          <pre id="profileOut" class="out"></pre>
+        </section>
+
+        <section class="card">
+          <h2>Kullanıcılar (Admin)</h2>
+          <div class="row">
+            <button id="btnUsers" class="btn btn-primary auth-required" type="button">GET /users</button>
+          </div>
+          <div class="hint muted">
+            Listeyi getirdikten sonra bir kullanıcıya tıkla veya <strong>Mesajla</strong>ya bas → o kullanıcıyla
+            konuşma açılır ve mesajlar yüklenir. (ADMIN rolü gerekir.)
+          </div>
+          <div id="usersOut" class="out"></div>
+        </section>
+
+        <section class="card">
+          <h2>Konuşmalar</h2>
+          <div class="row">
+            <button id="btnListConversations" class="btn btn-primary auth-required" type="button">GET /conversations</button>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label>participantUsername</label>
+              <input id="convParticipant" placeholder="örn: bob" />
+            </div>
+            <div class="col">
+              <label>(opsiyonel) conversationId</label>
+              <input id="convId" placeholder="örn: 65f..." />
+            </div>
+          </div>
+          <div class="row">
+            <button id="btnCreateConversation" class="btn auth-required" type="button">POST /conversations</button>
+            <button id="btnListMessages" class="btn auth-required" type="button">GET /conversations/{id}/messages</button>
+            <button id="btnDeleteConversation" class="btn btn-danger auth-required" type="button">DELETE /conversations/{id}</button>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label>Mesaj</label>
+              <input id="msgText" placeholder="Merhaba!" />
+            </div>
+            <div class="col">
+              <label>&nbsp;</label>
+              <button id="btnSendMessage" class="btn btn-primary w100 auth-required" type="button">
+                POST /conversations/{id}/messages
+              </button>
+            </div>
+          </div>
+          <div class="split">
+            <div>
+              <div class="subhead">Konuşma listesi</div>
+              <div id="convList" class="out"></div>
+            </div>
+            <div>
+              <div class="subhead">Mesajlar / Çıktı</div>
+              <div id="convOut" class="out"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Log / Debug</h2>
+          <div class="row">
+            <button id="btnClear" class="btn btn-ghost" type="button">Temizle</button>
+          </div>
+          <pre id="logOut" class="out out-dark"></pre>
+        </section>
+
+        <section class="card">
+          <h2>Yardım Noktası (Postman Manuel Test)</h2>
+          <div class="hint">
+            <strong>Base URL:</strong> <code>http://localhost:8080</code>
+            <br />
+            1) <strong>Register</strong> → <code>POST /auth/register</code> body:
+            <code>{"username":"admin","password":"123456"}</code>
+            <br />
+            2) <strong>Login</strong> → <code>POST /auth/login</code> body:
+            <code>{"username":"admin","password":"123456"}</code>
+            <br />
+            3) Dönen tokenı Postman'de tüm korumalı çağrılarda Header olarak ekle:
+            <code>Authorization: Bearer &lt;TOKEN&gt;</code>
+            <br />
+            4) Test et:
+            <code>GET /profile</code>, <code>GET /users</code>, <code>GET /conversations</code>
+            <br />
+            5) Konuşma oluştur:
+            <code>POST /conversations</code> body:
+            <code>{"participantUsername":"alice2"}</code>
+            <br />
+            6) Mesaj gönder:
+            <code>POST /conversations/{id}/messages</code> body:
+            <code>{"text":"merhaba"}</code>
+            <br />
+            7) Mesajları getir:
+            <code>GET /conversations/{id}/messages</code>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

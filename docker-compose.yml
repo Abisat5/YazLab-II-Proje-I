@@ -105,6 +105,13 @@ services:
     networks: [yazlab-internal]
     depends_on: [prometheus, loki]
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "8085:80"
+    networks: [yazlab-internal]
+    depends_on: [dispatcher]
+
 networks:
   yazlab-internal:
     driver: bridge
