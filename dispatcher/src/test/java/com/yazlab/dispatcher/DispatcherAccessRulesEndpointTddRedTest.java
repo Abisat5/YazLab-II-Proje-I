@@ -104,5 +104,14 @@ void createAccessRule_whenRequestBodyMissingFields_shouldReturnBadRequest() thro
                     .content(invalidBody))
             .andExpect(status().isBadRequest());
 }
+@Test
+void deleteAccessRule_whenRuleNotFound_shouldReturnNotFound() throws Exception {
+    String token = JwtTestUtil.generateToken("admin", "ADMIN");
+    String missingId = "000000000000000000000000";
+
+    mockMvc.perform(delete("/access-rules/{id}", missingId)
+                    .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound());
+}
 }
 
