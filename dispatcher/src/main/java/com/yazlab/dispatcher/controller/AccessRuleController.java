@@ -30,7 +30,9 @@ public class AccessRuleController {
 
     @DeleteMapping("/access-rules/{id}")
     public ResponseEntity<Void> deleteAccessRule(@PathVariable String id) {
-        
+        if (!accessRuleRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         accessRuleRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
