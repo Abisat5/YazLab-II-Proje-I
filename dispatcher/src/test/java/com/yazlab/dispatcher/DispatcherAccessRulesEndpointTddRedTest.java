@@ -113,5 +113,31 @@ void deleteAccessRule_whenRuleNotFound_shouldReturnNotFound() throws Exception {
                     .header("Authorization", "Bearer " + token))
             .andExpect(status().isNotFound());
 }
+@Test
+void getAccessRules_whenUserRole_shouldReturnForbidden() throws Exception {
+    String token = JwtTestUtil.generateToken("alice", "USER");
+    mockMvc.perform(get("/access-rules")
+                    .header("Authorization", "Bearer " + token))
+            .andExpect(status().isForbidden());
+}
+
+@Test
+void createAccessRule_whenDuplicateRulePosted_shouldReturnConflict() throws Exception {
+    String token = JwtTestUtil.generateToken("admin", "ADMIN");
+
+    String duplicateBody = """
+            {
+              "role": "ADMIN",
+              "httpMethod": "GET",
+              "pathPattern": "/access-rules"
+            }
+            """;
+
+    mockMvc.perform(post("/access-rules")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType("application/json")
+                    .content(duplicateBody))
+            .andExpect(status().isConflict());
+}
 }
 
