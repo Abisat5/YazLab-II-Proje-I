@@ -87,5 +87,22 @@ void createAccessRule_whenAdminTokenProvided_shouldReturnCreatedAndPersistRule()
             .andExpect(content().string(org.hamcrest.Matchers.containsString("ADMIN")))
             .andExpect(content().string(org.hamcrest.Matchers.containsString("/users/**")));
 }
+@Test
+void createAccessRule_whenRequestBodyMissingFields_shouldReturnBadRequest() throws Exception {
+    String token = JwtTestUtil.generateToken("admin", "ADMIN");
+
+    String invalidBody = """
+            {
+              "role": "",
+              "httpMethod": "POST"
+            }
+            """;
+
+    mockMvc.perform(post("/access-rules")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType("application/json")
+                    .content(invalidBody))
+            .andExpect(status().isBadRequest());
+}
 }
 
