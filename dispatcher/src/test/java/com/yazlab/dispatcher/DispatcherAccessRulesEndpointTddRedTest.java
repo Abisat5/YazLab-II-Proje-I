@@ -35,7 +35,8 @@ class DispatcherAccessRulesEndpointTddRedTest {
         accessRuleRepository.deleteAll();
         accessRuleRepository.saveAll(List.of(
                 new AccessRule(null, "ADMIN", "GET", "/access-rules"),
-                new AccessRule(null, "ADMIN", "DELETE", "/access-rules/**")
+                new AccessRule(null, "ADMIN", "DELETE", "/access-rules/**"),
+                new AccessRule(null, "ADMIN", "POST", "/access-rules")
         ));
     }
 

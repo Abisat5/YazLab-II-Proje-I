@@ -4,6 +4,9 @@ import com.yazlab.dispatcher.model.AccessRule;
 import com.yazlab.dispatcher.repository.AccessRuleRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,17 @@ public ResponseEntity<Void> deleteAccessRule(@PathVariable String id) {
     }
     accessRuleRepository.deleteById(id);
     return ResponseEntity.noContent().build();
+}
+@PostMapping("/access-rules")
+public ResponseEntity<AccessRule> createAccessRule(@RequestBody AccessRule request) {
+    AccessRule toSave = new AccessRule(
+            null,
+            request.getRole(),
+            request.getHttpMethod(),
+            request.getPathPattern()
+    );
+    AccessRule saved = accessRuleRepository.save(toSave);
+    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 }
 }
 
