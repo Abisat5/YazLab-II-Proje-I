@@ -8,4 +8,6 @@ import java.util.List;
 public interface AccessRuleRepository extends MongoRepository<AccessRule, String> {
 
     List<AccessRule> findByRole(String role);
+
+    boolean existsByRoleAndHttpMethodAndPathPattern(String role, String httpMethod, String pathPattern);
 }
