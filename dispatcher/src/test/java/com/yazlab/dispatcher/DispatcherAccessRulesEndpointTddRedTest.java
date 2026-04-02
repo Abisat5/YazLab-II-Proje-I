@@ -33,22 +33,23 @@ class DispatcherAccessRulesEndpointTddRedTest {
     void setUp() {
         accessRuleRepository.deleteAll();
         accessRuleRepository.saveAll(List.of(
-                new AccessRule(null, "ADMIN", "GET", "/access-rules")
+                new AccessRule(null, "ADMIN", "GET", "/access-rules"),
+                new AccessRule(null, "ADMIN", "DELETE", "/access-rules/**")
         ));
     }
 
     @Test
-    void adminAccessRulesEndpoint_mustExistAndReturnRules() throws Exception {
-        // Bu endpoint henüz implement edilmediği için test (RED) aşamasında fail olmalı.
-        String token = JwtTestUtil.generateToken("admin", "ADMIN");
+void adminAccessRulesEndpoint_mustExistAndReturnRules() throws Exception {
+    String token = JwtTestUtil.generateToken("admin", "ADMIN");
 
-        mockMvc.perform(get("/access-rules")
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("access-rules")))
-                .andExpect(status().is(HttpStatus.OK.value()));
-    
-    @Test
+    mockMvc.perform(get("/access-rules")
+                    .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("access-rules")))
+            .andExpect(status().is(HttpStatus.OK.value()));
+}
+
+@Test
 void deleteAccessRule_whenAdminTokenProvided_shouldReturnNoContentAndDeleteRule() throws Exception {
     AccessRule rule = accessRuleRepository.save(
             new AccessRule(null, "ADMIN", "POST", "/users")
@@ -64,6 +65,5 @@ void deleteAccessRule_whenAdminTokenProvided_shouldReturnNoContentAndDeleteRule(
             accessRuleRepository.findById(rule.getId()).isPresent()
     );
 }
-    }
 }
 
