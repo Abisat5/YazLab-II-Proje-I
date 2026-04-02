@@ -1,5 +1,6 @@
 package com.yazlab.dispatcher.model;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,10 +9,13 @@ public class AccessRule {
 
     @Id
     private String id;
+    @NotBlank
     private String role;
     /** HTTP metodu veya tumu icin "*" */
+    @NotBlank
     private String httpMethod;
     /** Ant tarzi yol deseni (orn: /conversations/**) */
+    @NotBlank
     private String pathPattern;
 
     public AccessRule() {

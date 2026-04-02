@@ -3,6 +3,7 @@ package com.yazlab.dispatcher.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +21,16 @@ public class GlobalExceptionHandler {
                 : ex.getMessage();
         Map<String, Object> error = ErrorResponseBody.create(400,
                 "Istek govdesi okunamadi. Body: raw JSON, Content-Type: application/json. " + (detail != null ? detail : ""));
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(err -> err.getField() + " zorunludur")
+                .orElse("Gecersiz istek");
+        Map<String, Object> error = ErrorResponseBody.create(400, message);
         return ResponseEntity.badRequest().body(error);
     }
 
