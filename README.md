@@ -282,18 +282,64 @@ k6 run --summary-export=load-tests/results/k6-summary-200.json load-tests/k6-dis
 | 200 | `DOLDURULACAK` | `DOLDURULACAK` | `DOLDURULACAK` | `DOLDURULACAK` |
 | 500 | `DOLDURULACAK` | `DOLDURULACAK` | `DOLDURULACAK` | `DOLDURULACAK` |
 
-## 12. Ekran Görüntüleri
+### 12. Ekran Görüntüleri ve Sistem Doğrulaması
+Bu bölümde, uygulamanın kullanıcı arayüzü, mikroservislerin API testleri ve sistemin güvenlik katmanlarına dair kanıtlar sunulmaktadır.
 
-Bu bölüme aşağıdaki ekran görüntüleri eklenecektir:
+Frontend ve Kullanıcı Arayüzü
 
-- frontend ana ekran
-- login ve register akışı
-- profil ekranı
-- kullanıcı listeleme
-- konuşma ve mesajlaşma ekranı
-- Grafana dashboard
-- Docker konteyner listesi
-- doğrudan mikroservis erişiminin reddedildiğini gösteren ekran
+Ana Sayfa: Uygulamanın giriş sonrası kullanıcıyı karşıladığı genel arayüz.
+
+<img width="1894" height="942" alt="Frontend Ana Ekran" src="https://github.com/user-attachments/assets/5e59a5e9-f2dd-40f7-a3c9-52749ea3d809" />
+<p align="center">--------------------------------------------------</p>
+
+Kayıt ve Giriş İşlemleri: Kullanıcı yetkilendirme akışını gösteren kayıt ve giriş formları.
+
+<p align="center">
+<img width="48%" src="https://github.com/user-attachments/assets/7006ac1d-296c-4d6f-87d6-0b015f76b4ed" />
+&nbsp;&nbsp;
+<img width="48%" src="https://github.com/user-attachments/assets/f2f0dc99-c272-47a8-98b7-2d2682845be2" />
+</p>
+<p align="center">--------------------------------------------------</p>
+
+Postman: API Endpoint Testleri
+
+
+Profil ve Kullanıcı Sorguları: Kullanıcı bilgilerinin getirilmesi ve sistemdeki kullanıcıların listelenmesi işlemleri.
+
+<p align="center">
+<img width="48%" src="https://github.com/user-attachments/assets/5b4971d0-6189-4165-b9d5-87a87e4419d3" />
+&nbsp;&nbsp;
+<img width="48%" src="https://github.com/user-attachments/assets/c704a640-b468-4327-be26-d64e999903f1" />
+</p>
+<p align="center">--------------------------------------------------</p>
+
+Mesajlaşma ve Konuşma Yönetimi: Yeni bir konuşma başlatma ve mesaj gönderimi isteklerinin doğrulanması.
+
+<img width="538" alt="Mesajlaşma İstekleri" src="https://github.com/user-attachments/assets/690fd6ce-7a23-4f3b-bc97-1dc9a1a2e4e6" />
+<p align="center">--------------------------------------------------</p>
+
+Sistem Güvenliği ve İzolasyon
+
+
+Doğrudan Mikroservis Erişiminin Reddedilmesi: Mimari gereği mikroservisler dış ağa kapalıdır. Aşağıdaki görselde, API Gateway (Dispatcher) üzerinden geçmeden doğrudan bir mikroservise (Port: 8082) erişilmeye çalışıldığında alınan bağlantı reddi (ECONNREFUSED) hatası görülmektedir. Bu durum, servis izolasyonunun başarılı olduğunu kanıtlar.
+
+<img width="536" alt="Güvenlik Testi" src="https://github.com/user-attachments/assets/40269309-3e6a-4bd9-befe-e493a2b0f362" />
+
+<p align="center">--------------------------------------------------</p>
+
+Docker ve Sistem İzleme
+
+Docker Konteyner Listesi: Sistemde aktif olarak çalışan mikroservisler, veritabanları (MongoDB) ve izleme araçlarının (Loki, Promtail, Grafana) çalışma durumu.
+
+<img width="1099" alt="Docker Konteyner Listesi" src="https://github.com/user-attachments/assets/24b8f878-823d-444c-ad84-ca24595f3cef" />
+
+<p align="center">--------------------------------------------------</p>
+
+Grafana Dashboard: Sistem loglarının merkezi olarak takip edildiği görselleştirme ekranı.
+
+(İlgili görsel eklenecektir)
+
+
 
 ## 13. Test Senaryoları ve Sonuçları
 
