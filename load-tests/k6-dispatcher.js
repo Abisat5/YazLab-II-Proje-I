@@ -2,6 +2,7 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 import { Counter, Rate, Trend } from "k6/metrics";
 
+
 const errorRate = new Rate("errors");
 const profileDuration = new Trend("profile_duration");
 const usersDuration = new Trend("users_duration");
@@ -25,12 +26,6 @@ const MESSAGE_PREFIX = __ENV.MESSAGE_PREFIX || "k6-load";
  */
 export const options = {
   stages: [
-    { duration: "15s", target: 50 },
-    { duration: "30s", target: 50 },
-    { duration: "15s", target: 100 },
-    { duration: "30s", target: 100 },
-    { duration: "15s", target: 200 },
-    { duration: "30s", target: 200 },
     { duration: "15s", target: MAX_TARGET },
     { duration: "30s", target: MAX_TARGET },
     { duration: "15s", target: 0 },
@@ -74,13 +69,18 @@ function markResult(response, metric, label) {
 
 function registerIfNeeded(username, password) {
   const response = http.post(
-    `${BASE}/auth/register`,
-    JSON.stringify({ username, password }),
-    { headers: jsonHeaders() }
+      `${BASE}/auth/register`,
+      JSON.stringify({ username, password }),
+      {
+        headers: jsonHeaders(),
+        responseCallback: http.expectedStatuses(201, 400, 409),
+      }
   );
 
+
+
   const accepted = check(response, {
-    "register accepted": (r) => r.status === 201 || r.status === 400,
+    "register accepted": (r) => r.status === 201 || r.status === 400 || r.status ==409,
   });
   errorRate.add(!accepted);
   return response;

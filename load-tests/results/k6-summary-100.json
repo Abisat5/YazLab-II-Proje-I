@@ -1,0 +1,297 @@
+{
+    "metrics": {
+        "http_req_blocked": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.01752454507425225,
+            "min": 0,
+            "med": 0,
+            "max": 4.5336
+        },
+        "conversation_create_duration": {
+            "avg": 911.8048707112971,
+            "min": 7.5081,
+            "med": 82.62795,
+            "max": 29181.6875,
+            "p(90)": 251.65494999999999,
+            "p(95)": 409.669875,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_waiting": {
+            "avg": 581.2370023948966,
+            "min": 2.6745,
+            "med": 69.5378,
+            "max": 29199.8578,
+            "p(90)": 248.2277699999999,
+            "p(95)": 375.3980749999999
+        },
+        "http_reqs": {
+            "count": 9562,
+            "rate": 116.67090886988193
+        },
+        "data_received": {
+            "count": 274416922,
+            "rate": 3348302.834032158
+        },
+        "http_req_connecting": {
+            "avg": 0.01109967580004183,
+            "min": 0,
+            "med": 0,
+            "max": 4.5336,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "data_sent": {
+            "count": 2566218,
+            "rate": 31311.753442611447
+        },
+        "profile_duration": {
+            "p(90)": 274.6563,
+            "p(95)": 340.704475,
+            "avg": 294.9252532426777,
+            "min": 5.3557,
+            "med": 81.6409,
+            "max": 29055.0552,
+            "thresholds": {
+                "p(95)<2500": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0
+        },
+        "http_req_receiving": {
+            "min": 0,
+            "med": 0,
+            "max": 529.936,
+            "p(90)": 1.6372999999999978,
+            "p(95)": 12.053829999999941,
+            "avg": 4.3695055427734735
+        },
+        "iterations": {
+            "count": 953,
+            "rate": 11.628046031478506
+        },
+        "vus_max": {
+            "value": 100,
+            "min": 100,
+            "max": 100
+        },
+        "errors": {
+            "passes": 0,
+            "fails": 9562,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        },
+        "http_req_duration": {
+            "p(90)": 259.8068899999997,
+            "p(95)": 398.14754999999974,
+            "avg": 585.6337448755495,
+            "min": 2.6745,
+            "med": 70.08070000000001,
+            "max": 29201.3881,
+            "thresholds": {
+                "p(95)<3000": false,
+                "avg<1500": false
+            }
+        },
+        "message_list_duration": {
+            "p(90)": 267.05965000000003,
+            "p(95)": 353.7546,
+            "avg": 374.5131043933058,
+            "min": 12.6426,
+            "med": 106.29995,
+            "max": 29139.0062,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "users_duration": {
+            "p(95)": 842.5078,
+            "avg": 475.70993462343085,
+            "min": 21.4614,
+            "med": 192.48395,
+            "max": 29201.3881,
+            "p(90)": 490.88115000000005,
+            "thresholds": {
+                "p(95)<2500": false
+            }
+        },
+        "message_send_duration": {
+            "p(95)": 316.12530000000004,
+            "avg": 540.643687761506,
+            "min": 5.4796,
+            "med": 72.85300000000001,
+            "max": 29102.3002,
+            "p(90)": 225.00855,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(90)": 259.8068899999997,
+            "p(95)": 398.14754999999974,
+            "avg": 585.6337448755495,
+            "min": 2.6745,
+            "med": 70.08070000000001,
+            "max": 29201.3881
+        },
+        "vus": {
+            "value": 59,
+            "min": 7,
+            "max": 100
+        },
+        "checks": {
+            "passes": 12431,
+            "fails": 0,
+            "value": 1
+        },
+        "completed_flows": {
+            "count": 956,
+            "rate": 11.664650583518837
+        },
+        "iteration_duration": {
+            "avg": 6286.179672717739,
+            "min": 592.3147,
+            "med": 1696.9889,
+            "max": 30606.1057,
+            "p(90)": 23352.92252,
+            "p(95)": 30034.094439999997
+        },
+        "http_req_sending": {
+            "p(95)": 0,
+            "avg": 0.027236937879104778,
+            "min": 0,
+            "med": 0,
+            "max": 4.5627,
+            "p(90)": 0
+        },
+        "http_req_failed": {
+            "fails": 9562,
+            "passes": 0,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        }
+    },
+    "setup_data": {
+        "adminToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3NTM0NzM5MiwiZXhwIjoxNzc1MzUwOTkyfQ.rE1b827WQ_Mn6kts2y-6Vao1mDYm6eYOhaFcawDTaZU"
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "setup": {
+                "path": "::setup",
+                "id": "5c0f8025f7e0b6654089e5b00e950f1a",
+                "groups": {},
+                "checks": {
+                        "register accepted": {
+                            "name": "register accepted",
+                            "path": "::setup::register accepted",
+                            "id": "3350cc644f139e5f8cd8e00ceb8a1627",
+                            "passes": 1,
+                            "fails": 0
+                        },
+                        "login status 200": {
+                            "fails": 0,
+                            "name": "login status 200",
+                            "path": "::setup::login status 200",
+                            "id": "17a4a3f3d5dbad586fefc48e40f4a9ab",
+                            "passes": 1
+                        },
+                        "login token var": {
+                            "id": "3c2e8c35ec189f4c484d63dec8faadd9",
+                            "passes": 1,
+                            "fails": 0,
+                            "name": "login token var",
+                            "path": "::setup::login token var"
+                        }
+                    },
+                "name": "setup"
+            }
+        },
+        "checks": {
+            "register accepted": {
+                "name": "register accepted",
+                "path": "::register accepted",
+                "id": "5abbfe7d2c0e6c2c36ee6740132f94b6",
+                "passes": 1912,
+                "fails": 0
+            },
+            "login status 200": {
+                "name": "login status 200",
+                "path": "::login status 200",
+                "id": "a9f04e9f501317c68a9f824e04811bea",
+                "passes": 1912,
+                "fails": 0
+            },
+            "login token var": {
+                "id": "d48e370890a1edf6fee5bc175be2ddc2",
+                "passes": 1912,
+                "fails": 0,
+                "name": "login token var",
+                "path": "::login token var"
+            },
+            "GET /profile status uygun": {
+                "id": "583ea421caa4ffe633bbc653d7339325",
+                "passes": 956,
+                "fails": 0,
+                "name": "GET /profile status uygun",
+                "path": "::GET /profile status uygun"
+            },
+            "GET /users status uygun": {
+                "id": "2add28685d3457a4eb91120ad14d034a",
+                "passes": 956,
+                "fails": 0,
+                "name": "GET /users status uygun",
+                "path": "::GET /users status uygun"
+            },
+            "POST /conversations status uygun": {
+                "path": "::POST /conversations status uygun",
+                "id": "2bd77ddccc8abf042340cba7ae61c9df",
+                "passes": 956,
+                "fails": 0,
+                "name": "POST /conversations status uygun"
+            },
+            "POST /conversations/{id}/messages status uygun": {
+                "name": "POST /conversations/{id}/messages status uygun",
+                "path": "::POST /conversations/{id}/messages status uygun",
+                "id": "a9625c0f17af3408fd28e55428c1e482",
+                "passes": 956,
+                "fails": 0
+            },
+            "GET /conversations status uygun": {
+                "name": "GET /conversations status uygun",
+                "path": "::GET /conversations status uygun",
+                "id": "f1e862e067f2a97bc80ddebd31ff795b",
+                "passes": 956,
+                "fails": 0
+            },
+            "GET /conversations body dizi": {
+                "id": "c038e787e557131ce171d426754d527b",
+                "passes": 956,
+                "fails": 0,
+                "name": "GET /conversations body dizi",
+                "path": "::GET /conversations body dizi"
+            },
+            "GET /conversations/{id}/messages status uygun": {
+                "id": "041377eecd4758b352de336ce45693b1",
+                "passes": 956,
+                "fails": 0,
+                "name": "GET /conversations/{id}/messages status uygun",
+                "path": "::GET /conversations/{id}/messages status uygun"
+            }
+        }
+    }
+}
