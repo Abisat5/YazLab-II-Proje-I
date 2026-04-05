@@ -295,17 +295,6 @@ docker compose up --build
 - Prometheus: `http://localhost:9090`
 - Loki: `http://localhost:3100`
 
-## 10. Gözlemlenebilirlik
-
-Projede Dispatcher trafiği ve loglar aşağıdaki araçlarla izlenmektedir:
-
-- `Prometheus`
-- `Grafana`
-- `Loki`
-- `Promtail`
-  
-Proje mimarisinin şeffaflığını sağlamak, hata ayıklama süreçlerini optimize etmek ve sistem limitlerini belirlemek amacıyla kapsamlı bir gözlemlenebilirlik (observability) altyapısı kurulmuştur. Bu sistem; metrik toplama (Prometheus), görselleştirme (Grafana) ve merkezi günlük kaydı yönetimi (Loki & Promtail) bileşenlerinden oluşmaktadır.
-
 ## 10. Gözlemlenebilirlik (Observability)
 
 Sistem mimarisinin şeffaflığını sağlamak, hata ayıklama süreçlerini optimize etmek ve sistem limitlerini belirlemek amacıyla uçtan uca bir gözlemlenebilirlik altyapısı kurulmuştur. Bu ekosistem; metrik toplama (Prometheus), görselleştirme (Grafana) ve merkezi günlük kaydı yönetimi (Loki & Promtail) bileşenlerinden oluşmaktadır.
