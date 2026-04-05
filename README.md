@@ -230,22 +230,54 @@ sequenceDiagram
     D-->>C: 201 Created
 ```
 
-## 8. Veri Tabanları ve İzolasyon
+## 8. Veri Tabanları ve Ağ İzolasyonu
 
-Her servis kendi bağımsız NoSQL veri tabanına sahiptir:
+Sistem mimarisi, "Database per Service" prensibine uygun olarak her servisin kendi bağımsız NoSQL veri tabanına sahip olduğu izole bir yapıda kurgulanmıştır:
 
-- `auth-service -> mongo-auth`
-- `user-service -> mongo-user`
-- `message-service -> mongo-message`
-- `dispatcher -> mongo-dispatcher`
+* **auth-service** -> `mongo-auth`
+* **user-service** -> `mongo-user`
+* **message-service** -> `mongo-message`
+* **dispatcher** -> `mongo-dispatcher`
 
-### 8.1. Ağ İzolasyonu
+---
 
-- mikroservisler `expose` ile iç ağda tutulmuştur
-- yalnızca `dispatcher` ve kullanıcı arayüzü dış dünyaya port açmaktadır
-- mikroservisler, `X-Yazlab-Internal-Token` olmadan gelen istekleri reddetmektedir
+### 8.1. Ağ İzolasyonu ve Güvenlik Katmanları
 
-Bu bölüme Docker ekran görüntüleri eklenecektir.
+Projenin güvenliği hem altyapı (Docker) hem de uygulama (Spring Boot) seviyesinde çift katmanlı olarak yapılandırılmıştır.
+
+#### 1. Mikroservislerin İç Ağda Tutulması (Expose)
+Sistemdeki kritik mikroservisler (Auth, User, Message) dış dünyaya tamamen kapatılmıştır. Bu servisler Docker içerisinde `expose` komutuyla sadece iç ağda (`yazlab-internal`) tanımlanmış, ana makineye (host) herhangi bir port açılmamıştır.
+
+<p align="center">
+  <img width="725" alt="Docker Expose Yapılandırması" src="https://github.com/user-attachments/assets/4c771a1b-64d9-4e09-ae53-47de0e6c5016" />
+  <br>
+  <i>Şekil 1: Mikroservislerin dış erişime kapalı, sadece iç ağda tanımlandığını gösteren Docker yapılandırması.</i>
+</p>
+
+---
+
+#### 2. Kontrollü Dış Erişim (Dispatcher ve UI)
+Sisteme dışarıdan erişim sadece iki stratejik noktadan mümkündür: Kullanıcı arayüzü (UI) ve tüm trafik yükünü karşılayan **Dispatcher (API Gateway)**. Sadece bu servisler için `ports` eşlemesi yapılarak kontrollü bir giriş kapısı oluşturulmuştur.
+
+<p align="center">
+  <img width="48%" alt="Dispatcher Port Yapılandırması" src="https://github.com/user-attachments/assets/27295931-ff92-48f7-adce-6bc4d4a3747a" />
+  <img width="48%" alt="UI Port Yapılandırması" src="https://github.com/user-attachments/assets/18e364c9-182a-4245-9c29-f3a149d3e95f" />
+  <br>
+  <i>Şekil 2 ve 3: Yalnızca Gateway ve Kullanıcı Arayüzü servislerinin dış dünyaya port açtığının teknik kanıtı.</i>
+</p>
+
+---
+
+#### 3. Yazılım Seviyesinde Doğrulama (X-Yazlab-Internal-Token)
+Ağ izolasyonuna ek olarak, mikroservisler uygulama seviyesinde (Application Level) bir güvenlik katmanına sahiptir. Servisler, gelen her isteğin Header kısmında `X-Yazlab-Internal-Token` bilgisini kontrol eder. 
+
+Eğer bir istek Gateway'i atlayarak doğrudan bir servise ulaşmaya çalışırsa (veya iç ağda yetkisiz bir erişim denemesi olursa), sistem bu isteği reddederek tam güvenliği sağlar.
+
+<p align="center">
+  <img width="847" alt="Internal Token Filter" src="https://github.com/user-attachments/assets/9ce3263c-fae9-4d41-9a05-6b8e1fec52d6" />
+  <br>
+  <i>Şekil 4: Mikroservislerin dahili token kontrolü yaparak yetkisiz erişimleri reddettiği Filter mekanizması.</i>
+</p>
 
 ## 9. Docker ve Çalıştırma
 
@@ -271,15 +303,73 @@ Projede Dispatcher trafiği ve loglar aşağıdaki araçlarla izlenmektedir:
 - `Grafana`
 - `Loki`
 - `Promtail`
+  
+Proje mimarisinin şeffaflığını sağlamak, hata ayıklama süreçlerini optimize etmek ve sistem limitlerini belirlemek amacıyla kapsamlı bir gözlemlenebilirlik (observability) altyapısı kurulmuştur. Bu sistem; metrik toplama (Prometheus), görselleştirme (Grafana) ve merkezi günlük kaydı yönetimi (Loki & Promtail) bileşenlerinden oluşmaktadır.
 
-Bu bölüme:
+## 10. Gözlemlenebilirlik (Observability)
 
-- trafik paneli ekran görüntüleri
-- durum kodları tablosu
-- p95 yanıt süresi grafiği
-- log kayıtları tablosu
+Sistem mimarisinin şeffaflığını sağlamak, hata ayıklama süreçlerini optimize etmek ve sistem limitlerini belirlemek amacıyla uçtan uca bir gözlemlenebilirlik altyapısı kurulmuştur. Bu ekosistem; metrik toplama (Prometheus), görselleştirme (Grafana) ve merkezi günlük kaydı yönetimi (Loki & Promtail) bileşenlerinden oluşmaktadır.
 
-ekleyeceğiz.
+---
+
+### 10.1. TDD (Test-Driven Development) Doğrulama Paneli
+Dispatcher biriminin geliştirilme sürecinde uygulanan TDD disiplini, canlı metrikler üzerinden doğrulanmaktadır. Proje isterlerine uygun olarak, tüm birim testler (Unit Tests) fonksiyonel koddan önce yazılmış ve %100 başarı oranıyla tamamlanmıştır.
+
+* **Analiz:** Toplam 18 birim test senaryosu; sistemin yönlendirme (routing), yetkilendirme (auth) ve hata yönetimi süreçlerini kapsama altına almıştır.
+
+<img width="772" alt="TDD Success Panel" src="https://github.com/user-attachments/assets/402dd48c-4491-44f5-bcca-39386be680b7" />
+
+---
+
+### 10.2. Trafik ve İşlem Hacmi Analizi (Throughput)
+Sistemin birim zamanda karşıladığı istek yoğunluğu, Prometheus üzerinden `http_server_requests_seconds_count` metriği ile anlık olarak izlenmektedir.
+
+* **Yük Testi Senaryosu (k6):** Sistem, kademeli olarak (ramp-up) 500 eş zamanlı kullanıcı (Concurrent Users) yüküne maruz bırakılmıştır.
+* **Gözlem:** Grafik üzerinde görüldüğü üzere, istek sayısı kullanıcı artışıyla doğru orantılı olarak yükselmiş ve saniyede ortalama 82.13 istek (RPS) başarıyla yönetilmiştir.
+
+<img width="1565" alt="Throughput Graph" src="https://github.com/user-attachments/assets/1216ba77-090d-40b2-b814-9eb38f90585a" />
+
+---
+
+### 10.3. HTTP Durum Kodları ve RMM Seviye 2 Dağılımı
+Richardson Maturity Model Seviye 2 standartlarına uygun olarak, API yanıtlarının karakteristiği analiz edilmiştir.
+
+* **Analiz:** Test süresince üretilen 18.489 isteğin büyük çoğunluğu 200 OK ve 201 Created olarak sonuçlanmıştır. Oluşan 4xx hataları, k6 scripti gereği mükerrer kayıt denemelerinden kaynaklanmış; sistem bu yoğun yük altında dahi operasyonel kararlılığını sürdürmüştür.
+
+| ![HTTP Status Codes 1](https://github.com/user-attachments/assets/62282d91-cee8-444f-a793-3f6c38103e78) | ![HTTP Status Codes 2](https://github.com/user-attachments/assets/27d4728e-3d53-4047-ac29-2c9ca91ae744) |
+| :---: | :---: |
+
+---
+
+### 10.4. Performans ve p95 Yanıt Süresi (Latency)
+Sistemin en yavaş %5'lik dilimini temsil eden p95 metriği, gerçek kullanıcı deneyimini ölçmek için temel alınmıştır.
+
+* **Sonuç:** 500 VU (Virtual Users) gibi ekstrem bir yük altında dahi p95 yanıt süresi 2.17s seviyesinde kalmıştır. Bu veri, Dispatcher'ın yoğun trafik altında mikroservis yönlendirmelerini bir darboğaz (bottleneck) oluşturmadan gerçekleştirdiğini kanıtlar.
+
+<img width="803" alt="p95 Latency" src="https://github.com/user-attachments/assets/3e9ddaf6-bd77-44c4-ade4-475b1f2b8e52" />
+
+---
+
+### 10.5. k6 Yük Testi Teknik Özet Tablosu
+Uçtan uca (E2E) kullanıcı akışını simüle eden k6 testinin terminal çıktıları, sistemin dayanıklılığını (resilience) belgelemektedir.
+
+* **Test Akışı:** Register -> Login -> Profile -> Conversation Create -> Message Send.
+* **Başarı Oranı:** %91.43 (Tanımlanan threshold değerleri doğrultusunda 500 kullanıcı yükünde dahi servis sürekliliği sağlanmıştır).
+
+<img width="899" alt="k6 Results" src="https://github.com/user-attachments/assets/eefd73c2-c693-47c3-a6c5-20367017163a" />
+
+---
+
+### 10.6. Merkezi Log Kayıtları ve Servis Sağlığı (Loki & Health Grid)
+Dispatcher ve bağlı mikroservislerin (Auth, User, Message) sağlık durumları merkezi bir ızgara (Grid) üzerinden, log kayıtları ise Loki üzerinden takip edilmektedir.
+
+* **Health Grid:** Tüm mikroservisler yük testi sonrasında dahi "UP" statüsünde kalarak sistemin High Availability (Yüksek Erişilebilirlik) kapasitesini doğrulamıştır.
+* **Log Analizi:** Loki üzerinden anlık olarak "ERROR" seviyesindeki loglar izlenebilmekte, hata kaynaklarına (Stack Trace) saniyeler içinde ulaşılabilmektedir.
+
+<img width="779" alt="Health Grid" src="https://github.com/user-attachments/assets/7c9f6bd9-bb01-431a-a77a-ee837da24f2f" />
+
+<img width="1580" alt="Loki Logs Explore" src="https://github.com/user-attachments/assets/b29235e0-a108-4ce4-964f-67ad112c2f9f" />
+
 
 ## 11. Yük Testleri
 
@@ -332,62 +422,70 @@ Threshold sonuçlarına göre sistem, `50` ve `100` eşzamanlı kullanıcı sevi
 Buna karşın tüm yük seviyelerinde `http_req_failed` ve özel hata metriği olan `errors` değerleri `%0.00` olarak ölçülmüştür. Bunun nedeni, yük testi sırasında tekrar eden kullanıcı kayıt denemelerinde oluşabilecek `409 Conflict` yanıtlarının senaryo kapsamında beklenen durum olarak değerlendirilmesidir. Bu sayede performans ölçümü, uygulama hatalarından ziyade sistemin gerçek yanıt süreleri ve yük altındaki davranışı üzerine odaklanmıştır. Sonuç olarak sistem, yüksek yük altında yavaşlasa da istekleri uygulama hatasına düşürmeden işlemeye devam etmiştir.
 
 
-### 12. Ekran Görüntüleri ve Sistem Doğrulaması
-Bu bölümde, uygulamanın kullanıcı arayüzü, mikroservislerin API testleri ve sistemin güvenlik katmanlarına dair kanıtlar sunulmaktadır.
+## 12. Ekran Görüntüleri ve Sistem Doğrulaması
 
-Frontend ve Kullanıcı Arayüzü
+Bu bölümde; uygulamanın kullanıcı arayüzü, mikroservislerin API testleri ve sistemin güvenlik katmanlarına dair operasyonel kanıtlar sunulmaktadır.
 
-Ana Sayfa: Uygulamanın giriş sonrası kullanıcıyı karşıladığı genel arayüz.
+---
 
-<img width="1894" height="942" alt="Frontend Ana Ekran" src="https://github.com/user-attachments/assets/5e59a5e9-f2dd-40f7-a3c9-52749ea3d809" />
-<p align="center">--------------------------------------------------</p>
+### 12.1. Frontend ve Kullanıcı Arayüzü
 
-Kayıt ve Giriş İşlemleri: Kullanıcı yetkilendirme akışını gösteren kayıt ve giriş formları.
+**Ana Sayfa:** Uygulamanın giriş sonrası kullanıcıyı karşıladığı, sistemdeki diğer bileşenlerle entegre çalışan genel arayüz.
+
+![Frontend Ana Ekran](https://github.com/user-attachments/assets/5e59a5e9-f2dd-40f7-a3c9-52749ea3d809)
+
+---
+
+**Kayıt ve Giriş İşlemleri:** Kullanıcı yetkilendirme (Authentication) akışını ve JWT tabanlı güvenlik yapısını besleyen form arayüzleri.
+
+| Kayıt Formu | Giriş Formu |
+| :---: | :---: |
+| ![Kayıt](https://github.com/user-attachments/assets/7006ac1d-296c-4d6f-87d6-0b015f76b4ed) | ![Giriş](https://github.com/user-attachments/assets/f2f0dc99-c272-47a8-98b7-2d2682845be2) |
+
+---
+
+### 12.2. Postman: API Endpoint Testleri
+
+**Profil ve Kullanıcı Sorguları:** Kullanıcı bilgilerinin güvenli bir şekilde getirilmesi ve sistemdeki kullanıcı listesinin sorgulanması işlemleri.
+
+| Profil Sorgusu | Kullanıcı Listesi |
+| :---: | :---: |
+| ![Profil](https://github.com/user-attachments/assets/5b4971d0-6189-4165-b9d5-87a87e4419d3) | ![Kullanıcı Sorgusu](https://github.com/user-attachments/assets/c704a640-b468-4327-be26-d64e999903f1) |
+
+---
+
+**Mesajlaşma ve Konuşma Yönetimi:** Yeni bir konuşma başlatma ve gerçek zamanlı mesaj gönderimi isteklerinin Gateway üzerinden doğrulanması.
 
 <p align="center">
-<img width="48%" src="https://github.com/user-attachments/assets/7006ac1d-296c-4d6f-87d6-0b015f76b4ed" />
-&nbsp;&nbsp;
-<img width="48%" src="https://github.com/user-attachments/assets/f2f0dc99-c272-47a8-98b7-2d2682845be2" />
+  <img width="600" alt="Mesajlaşma İstekleri" src="https://github.com/user-attachments/assets/690fd6ce-7a23-4f3b-bc97-1dc9a1a2e4e6" />
 </p>
-<p align="center">--------------------------------------------------</p>
 
-Postman: API Endpoint Testleri
+---
 
+### 12.3. Sistem Güvenliği ve İzolasyon (Network Isolation)
 
-Profil ve Kullanıcı Sorguları: Kullanıcı bilgilerinin getirilmesi ve sistemdeki kullanıcıların listelenmesi işlemleri.
+**Doğrudan Mikroservis Erişiminin Reddedilmesi:** Mimari gereği mikroservisler dış ağa kapalıdır ve sadece API Gateway (Dispatcher) üzerinden erişilebilir durumdadır. 
+
+Aşağıdaki görselde, Dispatcher üzerinden geçmeden doğrudan bir mikroservise (**Port: 8082**) erişilmeye çalışıldığında alınan bağlantı reddi (**ECONNREFUSED**) hatası görülmektedir. Bu durum, servis izolasyonunun ve ağ güvenliğinin başarılı bir şekilde yapılandırıldığını kanıtlar.
 
 <p align="center">
-<img width="48%" src="https://github.com/user-attachments/assets/5b4971d0-6189-4165-b9d5-87a87e4419d3" />
-&nbsp;&nbsp;
-<img width="48%" src="https://github.com/user-attachments/assets/c704a640-b468-4327-be26-d64e999903f1" />
+  <img width="600" alt="Güvenlik Testi" src="https://github.com/user-attachments/assets/40269309-3e6a-4bd9-befe-e493a2b0f362" />
 </p>
-<p align="center">--------------------------------------------------</p>
 
-Mesajlaşma ve Konuşma Yönetimi: Yeni bir konuşma başlatma ve mesaj gönderimi isteklerinin doğrulanması.
+---
 
-<img width="538" alt="Mesajlaşma İstekleri" src="https://github.com/user-attachments/assets/690fd6ce-7a23-4f3b-bc97-1dc9a1a2e4e6" />
-<p align="center">--------------------------------------------------</p>
+### 12.4. Docker ve Sistem İzleme
 
-Sistem Güvenliği ve İzolasyon
+**Docker Konteyner Listesi:** Sistemde aktif olarak çalışan mikroservisler, veritabanları (MongoDB) ve izleme araçlarının (Loki, Promtail, Grafana, Prometheus) güncel çalışma durumu.
 
+![Docker Konteyner Listesi](https://github.com/user-attachments/assets/24b8f878-823d-444c-ad84-ca24595f3cef)
 
-Doğrudan Mikroservis Erişiminin Reddedilmesi: Mimari gereği mikroservisler dış ağa kapalıdır. Aşağıdaki görselde, API Gateway (Dispatcher) üzerinden geçmeden doğrudan bir mikroservise (Port: 8082) erişilmeye çalışıldığında alınan bağlantı reddi (ECONNREFUSED) hatası görülmektedir. Bu durum, servis izolasyonunun başarılı olduğunu kanıtlar.
+---
 
-<img width="536" alt="Güvenlik Testi" src="https://github.com/user-attachments/assets/40269309-3e6a-4bd9-befe-e493a2b0f362" />
+**Grafana Dashboard:** Sistem metriklerinin ve log kayıtlarının merkezi olarak takip edildiği, projenin gözlemlenebilirlik (observability) kapasitesini gösteren ana ekran.
 
-<p align="center">--------------------------------------------------</p>
+![Grafana Dashboard](https://github.com/user-attachments/assets/be73c891-3725-415e-b72c-f0e30afe8189)
 
-Docker ve Sistem İzleme
-
-Docker Konteyner Listesi: Sistemde aktif olarak çalışan mikroservisler, veritabanları (MongoDB) ve izleme araçlarının (Loki, Promtail, Grafana) çalışma durumu.
-
-<img width="1099" alt="Docker Konteyner Listesi" src="https://github.com/user-attachments/assets/24b8f878-823d-444c-ad84-ca24595f3cef" />
-
-<p align="center">--------------------------------------------------</p>
-
-Grafana Dashboard: Sistem loglarının merkezi olarak takip edildiği görselleştirme ekranı.
-
-(İlgili görsel eklenecektir)
 
 
 
@@ -486,8 +584,55 @@ Yük testleri, sistemin düşük ve orta yük seviyelerinde kararlı çalıştı
 Gelecek çalışmalarda gerçek zamanlı iletişim desteği, daha gelişmiş güvenlik önlemleri, ölçekleme kabiliyeti ve otomatik test/dağıtım süreçleri eklenerek sistem daha ileri seviyeye taşınabilir.
 
 
-## 16. Ekler
+## 16. Kaynakça ve Teknik Referanslar
 
-- Markdown ve Mermaid kaynakları
-- kullanılan bağlantılar
-- gerekiyorsa ek diyagramlar
+Bu proje, Kocaeli Üniversitesi Yazılım Geliştirme Laboratuvarı-II dersi isterleri doğrultusunda, modern yazılım mühendisliği standartları ve aşağıda belirtilen akademik/teknik referanslar temel alınarak geliştirilmiştir.
+
+### 16.1. Mimari Tasarım ve Metodoloji Referansları
+
+* **Microservices Architecture & Patterns:** Mikroservislerin bağımsız birimler olarak kurgulanması ve "Database per Service" veri izolasyonu prensipleri.
+  * [https://microservices.io/](https://microservices.io/)
+  * [GeeksforGeeks - Microservices System Design](https://www.geeksforgeeks.org/system-design/microservices/)
+
+* **Richardson Maturity Model (RMM):** Projede uygulanan Seviye 2 standartları; kaynak tabanlı URI yapısı, doğru HTTP metot kullanımı ve durum kodları yönetimi.
+  * [https://restfulapi.net/richardson-maturity-model/](https://restfulapi.net/richardson-maturity-model/)
+  * [Richardson Maturity Model in RESTful API](https://www.geeksforgeeks.org/node-js/richardson-maturity-model-restful-api/)
+
+* **Test-Driven Development (TDD):** Dispatcher servisinin geliştirilmesinde zorunlu tutulan Red-Green-Refactor döngüsü ve test-öncelikli geliştirme disiplini.
+  * [GeeksforGeeks - Test Driven Development Guide](https://www.geeksforgeeks.org/software-engineering/test-driven-development-tdd/)
+
+* **Software Design & OOP Principles:** SOLID prensipleri, soyutlama ve nesne yönelimli tasarım standartları (VMware Spring Reference).
+  * [https://docs.spring.io/spring-boot/docs/current/reference/html/](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+
+---
+
+### 16.2. Sistem Orkestrasyonu ve Altyapı Dokümantasyonu
+
+* **Docker & Docker Compose:** Tüm mimarinin `docker-compose up` komutuyla tek seferde ayağa kaldırılması ve ağ izolasyonu (Network Isolation) yapılandırması.
+  * [Docker Compose Up Reference](https://docs.docker.com/reference/cli/docker/compose/up/)
+  * [GeeksforGeeks - What is Docker Compose Up?](https://www.geeksforgeeks.org/devops/what-is-docker-compose-up/)
+
+* **NoSQL Database Systems:** Servisler arası veri izolasyonunu sağlayan MongoDB mimarisi ve veri yapıları.
+  * [https://www.mongodb.com/docs/](https://www.mongodb.com/docs/)
+
+---
+
+### 16.3. Gözlemlenebilirlik ve Performans Testi Araçları
+
+* **Load Testing (k6):** 50, 100, 200 ve 500 eş zamanlı kullanıcı senaryoları ile sistemin yük altındaki yanıt sürelerinin ve hata oranlarının ölçümü.
+  * [https://k6.io/docs/](https://k6.io/docs/)
+
+* **Visualization & Logging (Grafana & Loki):** Dispatcher üzerindeki trafik akışının grafiksel arayüz ve log tabloları ile sunulması.
+  * [Grafana Labs Documentation](https://grafana.com/docs/)
+  * [Prometheus Foundation](https://prometheus.io/docs/introduction/overview/)
+
+---
+
+### 16.4. Raporlama ve Görselleştirme Araçları
+
+* **Markdown Guide:** GitHub üzerinde `readme.md` dosyasının standartlara uygun hazırlanması.
+  * [https://www.markdownguide.org/](https://www.markdownguide.org/)
+* **Mermaid.js:** Rapor içerisindeki Sequence, Flowchart ve Sınıf diyagramlarının kod tabanlı oluşturulması.
+  * [Mermaid Guide for GitHub](https://github.blog/developer-skills/github/include-diagrams-markdown-files-mermaid/)
+
+---
